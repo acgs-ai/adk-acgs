@@ -326,10 +326,22 @@ plugin = ACGSPlugin(constitution=constitution, agent_id="payments-app")
 | Argument | Default | Meaning |
 |---|---|---|
 | `constitution` | `Constitution.default()` | Rules to enforce |
-| `agent_id` | `"adk-agent"` | Agent identifier recorded by ACGS |
+| `agent_id` | `"adk-agent"` | Agent identifier passed to `GovernanceEngine.validate`. acgs-lite's default engine does not store it |
 | `on_review` | `"confirm"` | `"confirm"`, `"deny"`, or a callable `(decision, tool_context) -> bool` |
 | `tool_call_formatter` | `format_tool_call` | `(tool_name, args) -> str` used as the evaluated text |
 | `name` | `"acgs"` | Plugin name; must be unique on the `App` |
+
+## Data handling
+
+- Checks run in the same process. The plugin makes no network calls and needs no account or API key.
+- The text that rules are checked against contains the tool name and argument values. In its default audit mode,
+  acgs-lite 3.0.1 keeps only a count of checks and stores neither that text nor `agent_id`
+  (`tests/test_plugin.py::test_default_engine_keeps_no_record_of_checked_calls` checks this). An `acgs_lite.AuditLog`
+  in full audit mode would store the checked text, but the plugin does not create one.
+- Denial and review reasons name the matched rules and their text, never argument values. The plugin logs the tool
+  name and rule IDs (`INFO`), and logs a traceback when a check fails (`WARNING`).
+- A review in `"confirm"` mode is an ADK tool confirmation, so ADK stores the request, including the original call
+  and its arguments, in the session like any other confirmation.
 
 ## Limitations
 

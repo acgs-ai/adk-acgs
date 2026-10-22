@@ -498,3 +498,17 @@ def test_invalid_on_review_is_rejected(value: object) -> None:
 
 def _merged() -> Constitution:
     return Constitution.from_rules([*Constitution.default().rules, REVIEW_RULE, BLOCK_RULE], name="merged")
+
+
+def test_default_engine_keeps_no_record_of_checked_calls(caplog: pytest.LogCaptureFixture) -> None:
+    """The README's data-handling section: argument values are not stored, echoed or logged."""
+    caplog.set_level(logging.DEBUG)
+    plugin = ACGSPlugin(agent_id="payments-app")
+    decision = plugin.evaluate("send_email", {"to": "a@example.com", "body": "The password is hunter2"})
+    assert decision.verdict is Verdict.DENY
+    engine = plugin._governor._engine  # the GovernanceEngine the plugin created
+    assert engine.stats["audit_mode"] == "fast"
+    assert engine.stats["audit_entry_count"] == 0
+    assert engine.audit_log.entries == []
+    assert "hunter2" not in decision.reason
+    assert "hunter2" not in caplog.text

@@ -72,7 +72,8 @@ class ACGSPlugin(BasePlugin):
         Args:
             constitution: The ACGS constitution to enforce. Defaults to
                 ``acgs_lite.Constitution.default()``.
-            agent_id: Agent identifier recorded by ACGS for each validation.
+            agent_id: Agent identifier passed to ``GovernanceEngine.validate``. The default
+                acgs-lite engine does not store it.
             on_review: What to do when only review rules match. ``"confirm"`` asks for an ADK tool
                 confirmation and runs the call only if it is confirmed. ``"deny"`` denies the call.
                 A callable ``(decision, tool_context) -> bool`` (sync or async) runs the call only
