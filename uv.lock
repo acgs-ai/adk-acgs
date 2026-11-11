@@ -59,7 +59,7 @@ typing = [
 
 [package.metadata]
 requires-dist = [
-    { name = "acgs-lite", specifier = ">=3.0.1,<4" },
+    { name = "acgs-lite", specifier = ">=3.0.1,<5" },
     { name = "google-adk", specifier = ">=2.0.0,<3" },
 ]
 
