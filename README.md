@@ -28,11 +28,36 @@ pip install adk-acgs
 
 Requires Python 3.10 or later, `google-adk>=2.0.0,<3` and `acgs-lite>=3.0.1,<5`. (ADK 2.12 and later need Python 3.11.)
 
+### Compatibility
+
+| Component | Supported range | 0.2.0 validation |
+|---|---|---|
+| acgs-lite | `>=3.0.1,<5` | 4.0.0 tested in the default environment (`uv.lock`); 3.0.1 floor tested by the CI `test-min` job |
+| Google ADK | `>=2.0.0,<3` | 2.12.0 in the default Python 3.11+ environment; 2.0.0 floor in CI `test-min` |
+| Python | `>=3.10` | CI covers 3.10 through 3.14; strict typing targets 3.10 |
+
+The adapter formats tool arguments as text and calls `GovernanceEngine.validate`. It does not select the
+production authorization profile or issue signed receipts. Nested JSON-native arguments are supported, and
+bytes/bytearray values remain scalar text for rule matching at the adapter's evaluation boundary.
+
 acgs-lite 4 is a major release. Its production profile of `GovernedCallable` requires an Ed25519
 receipt signer, governed payloads are JSON-only, and `GovernedAgent` no longer passes per-call keyword arguments to
 rule conditions (see the [acgs-lite changelog](https://github.com/acgs-ai/acgs-lite/blob/main/CHANGELOG.md)). This
 adapter works with both majors, but a fresh environment installs the newest version allowed. To stay on 3.x, also
 require `"acgs-lite<4"`, for example `pip install adk-acgs "acgs-lite<4"`.
+
+### Offline deny-and-audit example
+
+Run [examples/deny_and_audit.py](examples/deny_and_audit.py) without an API key or network access:
+
+```bash
+uv run --no-sync python examples/deny_and_audit.py
+```
+
+A scripted model requests one allowed note and one denied note through an ADK `App` with `ACGSPlugin`.
+Only the allowed tool executes, then the example prints both decisions (tool, verdict, reason and rule IDs).
+The application decision trail omits argument values and stays in memory; it is not a signed receipt or a
+durable engine audit log.
 
 ## Usage
 
